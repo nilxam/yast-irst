@@ -125,10 +125,9 @@ module Yast
 
 	#  @return [Boolean] successfull
 	def ReadIrstParams
-	  local_events_param = SCR.Read(path(".target.string"), "/sys/bus/acpi/drivers/intel_rapid_start/INT3392:00/wakeup_events")
-	  @wakeup_time_param = Convert.convert(SCR.Read(path(".target.string"), "/sys/bus/acpi/drivers/intel_rapid_start/INT3392:00/wakeup_time"), :from => "string", :to => "integer")
-	  Builtins.y2debug("events_param=%1", local_events_param)
-	  Builtins.y2debug("time_param=%1", @wakeup_time_param)
+	  driver_path = "/sys/bus/acpi/drivers/intel_rapid_start/INT3392:00/"
+	  @wakeup_events_param = SCR.Read(path(".target.string"), driver_path + "wakeup_events").chomp.to_i
+	  @wakeup_time_param = SCR.Read(path(".target.string"), driver_path + "wakeup_time").chomp.to_i
 
 	  true 
 	end

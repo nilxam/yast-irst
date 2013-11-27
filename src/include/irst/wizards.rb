@@ -45,12 +45,8 @@ module Yast
         "write"    => { :abort => :abort, :next => :next }
       }
 
-      Wizard.CreateDialog
-      if Mode.normal
-        Wizard.SetDesktopTitleAndIcon("irst")
-      else
-        Wizard.SetTitleIcon("yast-irst")
-      end
+	  Wizard.CreateDialog
+	  Wizard.SetTitleIcon("yast-irst")
 
       ret = Sequencer.Run(aliases, sequence)
       UI.CloseDialog

@@ -7,25 +7,22 @@ module Yast
 
 	  Yast.import "Popup"
 	  Yast.import "Irst"
-	  Yast.import "Mode"
 	end
 
 	# Function initializes option "Enable/Disable irst"
 	def InitEnableDisalbeIrst(key)
-	  if Mode.installation
-		case Irst.wakeup_events_param
-		when 0
-		  UI.ChangeWidget(Id("EnableDisalbeIrst"), :Value, "disable_irst")
-		when 1
-		  UI.ChangeWidget(Id("EnableDisalbeIrst"), :Value, "enable_irst_timer_exp")
-		when 2
-		  UI.ChangeWidget(Id("EnableDisalbeIrst"), :Value, "enable_irst_battery_cri")
-		else
-		  UI.ChangeWidget(Id("EnableDisalbeIrst"), :Value, "enable_irst_any")
-		end
-
-		nil
+	  case Irst.wakeup_events_param
+	  when 0
+		UI.ChangeWidget(Id("EnableDisalbeIrst"), :Value, "disable_irst")
+	  when 1
+		UI.ChangeWidget(Id("EnableDisalbeIrst"), :Value, "enable_irst_timer_exp")
+	  when 2
+		UI.ChangeWidget(Id("EnableDisalbeIrst"), :Value, "enable_irst_battery_cri")
+	  else
+		UI.ChangeWidget(Id("EnableDisalbeIrst"), :Value, "enable_irst_any")
 	  end
+
+	  nil
 	end
 
 	# Function stores option "Enable/Disable IRST"
@@ -52,13 +49,14 @@ module Yast
 	# "WakeupTimer"
 	def InitWakeupTimer(key)
 	  if Ops.greater_than(Irst.wakeup_time_param, 0)
+		Builtins.y2debug("time_param=%1", Irst.wakeup_time_param)
 		UI.ChangeWidget(
 		  Id("wakeup_timer"),
 		  :Value,
-		  Builtins.tostring(Irst.wakeup_time_param)
+		  Irst.wakeup_time_param
 		)
 	  else
-		UI.ChangeWidget(Id("wakeup_timer"), :Value, "0")
+		UI.ChangeWidget(Id("wakeup_timer"), :Value, 0)
 	  end
 
 	  nil
