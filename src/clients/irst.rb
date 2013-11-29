@@ -16,7 +16,6 @@ module Yast
 
       Yast.import "Progress"
       Yast.import "Report"
-      Yast.import "Summary"
       Yast.import "Popup"
       Yast.import "String"
       Yast.import "FileUtils"

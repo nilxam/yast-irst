@@ -8,7 +8,6 @@ module Yast
       textdomain "irst"
 
       Yast.import "Progress"
-      Yast.import "Summary"
       Yast.import "Message"
       Yast.import "Label"
       Yast.import "Popup"
@@ -55,7 +54,7 @@ module Yast
 
 	  # Have battery?
 	  # type: boolean
-	  @have_battery = true
+	  @have_battery = false
 
 	  # Abort function
       # return boolean return true if abort
@@ -128,6 +127,19 @@ module Yast
 	  driver_path = "/sys/bus/acpi/drivers/intel_rapid_start/INT3392:00/"
 	  @wakeup_events_param = SCR.Read(path(".target.string"), driver_path + "wakeup_events").chomp.to_i
 	  @wakeup_time_param = SCR.Read(path(".target.string"), driver_path + "wakeup_time").chomp.to_i
+	  ba_path = "/sys/class/power_supply/"
+	  if FileUtils.Exists(ba_path + "AC")
+		@have_battery = true
+	  end
+
+	  true 
+	end
+
+	#  @return [Boolean] successfull
+	def WriteIrstParams
+	  driver_path = "/sys/bus/acpi/drivers/intel_rapid_start/INT3392:00/"
+	  SCR.Write(path(".target.string"), driver_path + "wakeup_events", @wakeup_events_param.to_s)
+	  SCR.Write(path(".target.string"), driver_path + "wakeup_time", @wakeup_time_param.to_s)
 
 	  true 
 	end
@@ -240,7 +252,7 @@ module Yast
       return false if Abort()
       Progress.NextStage
       # Error message
-      if !WriteIrstParameter()
+      if !WriteIrstParams()
         Report.Error(_("Update the value to parameters fault."))
       end
 
@@ -251,55 +263,6 @@ module Yast
       return false if Abort()
       true
     end
-
-    # Create a textual summary and a list of unconfigured cards
-    # @return summary of the current configuration
-	def Summary
-	  result = []
-	  if @wakeup_events_param != 0
-		@irst_enable = true
-	  end
-	  result = Builtins.add(
-		result,
-		Builtins.sformat(
-		  _("Intel Rapid Start Technology status: %1"),
-		  @irst_enable ? _("enabled") : _("disabled")
-		)
-	  )
-	  if @wakeup_events_param == 1
-		result = Builtins.add(
-		  result,
-		  Builtins.sformat(
-			_("Wake-Up Event: %1"),
-			_("the wakeup timer expires.")
-		  )
-		)
-	  elsif @wakeup_events_param == 2
-		result = Builtins.add(
-		  result,
-		  Builtins.sformat(
-			_("Wake-Up Event: %1"),
-			_("the battery reaches a critical level.")
-		  )
-		)
-	  elsif @wakeup_events_param == 3
-		result = Builtins.add(
-		  result,
-		  Builtins.sformat(
-			_("Wake-Up Event: %1"),
-			_("the wakeup timer expires or the battery reaches a critical level.")
-		  )
-		)
-	  end
-	  result = Builtins.add(
-		result,
-		Builtins.sformat(
-		  _("Timer: %1 minutes"),
-		  Builtins.tostring(@wakeup_time_param)
-		)
-	  )
-	  deep_copy(result)
-	end
 
 	publish :variable => :modified, :type => "boolean"
 	publish :variable => :write_only, :type => "boolean"
@@ -313,7 +276,6 @@ module Yast
     publish :function => :Abort, :type => "boolean ()"
     publish :function => :Read, :type => "boolean ()"
     publish :function => :Write, :type => "boolean ()"
-    publish :function => :Summary, :type => "list <string> ()"
   end
 
   Irst = IrstClass.new

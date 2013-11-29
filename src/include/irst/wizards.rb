@@ -33,9 +33,9 @@ module Yast
     # @return sequence result
     def IrstSequence
       aliases = {
-        "read"  => [lambda { ReadDialog() }, true],
-        "main"  => lambda { MainSequence() },
-        "write" => [lambda { WriteDialog() }, true]
+        "read"    => [lambda { ReadDialog() }, true],
+        "main"    => lambda { MainSequence() },
+        "write"   => [lambda { WriteDialog() }, true]
       }
 
       sequence = {
